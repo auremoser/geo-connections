@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Geo-NYC Connections</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link rel="shortcut icon" href="http://cartodb.com/assets/favicon.ico" />
+    <style>
+    html,
+    body {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    #image {
+        position: relative;
+        border: 10px #f60;
+        width: 1200px;
+    }
+    #label {
+        background-color: #C0392B;
+        color: #252525;
+        font-family: "Helvetica Neue","Helvetica",Arial,sans-serif;
+        font-size: 15px;
+        font-weight: bold;
+        margin-left: 5px;
+        padding: 5px;
+        position: absolute;
+        text-transform: uppercase;
+        top: 700px;
+        left: 50px;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="image">
+        <div id="label">Colin &#x2764; Tom</div>
+    </div>
+    <!-- include cartodb.js library -->
+    <script src="http://libs.cartocdn.com.s3.amazonaws.com/cartodb.js/v3/3.11/cartodb.js"></script>
+
+    <script>
+    function main() {
+
+        // account
+        var currentEndpoint = "http://aureliamoser.cartodb.com/api/v1/map";
+
+        // basemap layer styles
+        var basemap = {
+            config: {
+                "type": "http",
+                "options": {
+                    "urlTemplate": "http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+                    "subdomains": ["a", "b", "c"]
+                }
+            },
+        }
+
+
+        // add layers to an array
+        var checkedLayers = [];
+
+        checkedLayers.push(basemap.config);
+
+
+        // add this layer using sql from example layer above, below is all that is needed for configuration
+        checkedLayers.push({
+            "type": "cartodb",
+            "options": {
+                "sql": "SELECT cartodb_id, ST_Transform(ST_Segmentize(ST_Transform(ST_MakeLine(ST_PointN(ST_GeometryN(the_geom,1),1),ST_PointN(ST_GeometryN(the_geom,1),3)),953027), 10000),3857) the_geom_webmercator,label FROM geonyc_connections WHERE cartodb_id=13",
+                "cartocss": '#geonyc_connections{line-color: #C0392B;line-width: 4;line-opacity: 0.7;line-smooth:0.7;line-cap: round;marker-file: url(https://raw.githubusercontent.com/auremoser/images/master/heart-red.png);marker-fill-opacity: 0.9;marker-line-color: #FFF;marker-line-width: 0;marker-line-opacity: 1;marker-placement: point;marker-type: ellipse;marker-width: 30.5;marker-fill: #FFFFFF ;marker-allow-overlap: true;}',
+                "cartocss_version": "2.1.1"
+            }
+        });
+        //  //push more layers here if you want!
+
+        var config = {
+            "version": "1.3.0-alpha",
+            "layers": checkedLayers // array of layers
+        };
+
+        // turn JSON into a string
+        var jsonMapConfig = JSON.stringify(config, null, 2);
+
+        var iWidth = 1200;
+        var iHeight = Math.round(iWidth * (4 / 6));
+        var connectedData = [{
+            lng: 35.243322000000035,
+            lat: 38.963745,
+            zoom: 2
+        }];
+
+        // get back a map token which represents all the sql, css (cached)
+        // establish configuration of layers to receive token
+        // if layer configuration is the same and make new request with different image size, will send same token
+        // ajax request to get back token from cartoDB using configuration styles that have been set above
+        // request is sent via account endpoint
+        var request = new XMLHttpRequest();
+        request.open('POST', currentEndpoint, true);
+        request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                var layergroup = JSON.parse(this.response);
+                // document.getElementById('preview').src = console.log(layergroup);
+                console.log(layergroup.layergroupid); // if change imageConfig settings, token sent back will be the same
+                for (i in connectedData) {
+                    var path = [
+                        currentEndpoint,
+                        'static',
+                        'center',
+                        layergroup.layergroupid,
+                        connectedData[i].zoom,
+                        connectedData[i].lat,
+                        connectedData[i].lng,
+                        iWidth, //width:
+                        iHeight //height:
+                    ].join('/') + ".png";
+                    console.log(path) // url
+
+                    var g = new Image();
+                    g.src = path;
+                    document.getElementById('image').appendChild(g);
+                }
+
+            } else {
+                throw 'Error calling server: Error ' + this.status + ' -> ' + this.response;
+            }
+        };
+        request.send(jsonMapConfig);
+
+
+    }
+    window.onload = main;
+    </script>
+</body>
+
+</html>
