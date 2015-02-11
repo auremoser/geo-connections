@@ -66,6 +66,7 @@
 
 
         // add this layer using sql from example layer above, below is all that is needed for configuration
+        // paste in SQL and CartoCSS from your editor as below
         checkedLayers.push({
             "type": "cartodb",
             "options": {
@@ -74,7 +75,7 @@
                 "cartocss_version": "2.1.1"
             }
         });
-        //  //push more layers here if you want!
+        //push more layers here if you want!
 
         var config = {
             "version": "1.3.0-alpha",
@@ -83,22 +84,16 @@
 
         // turn JSON into a string
         var jsonMapConfig = JSON.stringify(config, null, 2);
-
+        // edit this width to determin the image quality output of your png/jpg
         var iWidth = 1200;
         var iHeight = Math.round(iWidth * (4 / 6));
+        // edit thes values to set the centroid lat/lng and zoom level for your map
         var connectedData = [{
-            // lng: -87.4,
-            // lat: 41.8994744,
             lng: -10.940834999999993,
             lat: 21.00789,
             zoom: 3
         }];
 
-        // get back a map token which represents all the sql, css (cached)
-        // establish configuration of layers to receive token
-        // if layer configuration is the same and make new request with different image size, will send same token
-        // ajax request to get back token from cartoDB using configuration styles that have been set above
-        // request is sent via account endpoint
         var request = new XMLHttpRequest();
         request.open('POST', currentEndpoint, true);
         request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
