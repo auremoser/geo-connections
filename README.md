@@ -14,4 +14,4 @@ More about the Static Maps API on [CartoDB's Docs Page here](http://docs.cartodb
 
 More about the exact steps to make this happen and some support resources in the `process.md` file in this repo.
 
-![Pretty_Map](https://raw.githubusercontent.com/auremoser/geo-connections/master/imageGenerator/images/geo-21.png)
+![Pretty_Map](https://raw.githubusercontent.com/auremoser/geo-connections/master/img/output-lgt/geo-11.png)
